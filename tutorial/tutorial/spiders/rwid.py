@@ -15,14 +15,14 @@ class RwidSpider(scrapy.Spider):
         self.logger.info(response.headers.getlist("Set-Cookie"))
 
     def afterlogin(self, response):
-        yield scrapy.Request('http://192.168.100.11:9999', callback=self.redirect)
+        yield scrapy.Request('http://192.168.100.11:9999', callback=self.start_parse)
 
-    def redirect(self, response):
+    def start_parse(self, response):
         title_page_links = response.css('.card-title a')
         yield from response.follow_all(title_page_links, self.parse_detail)
 
         pagination_links = response.css('.pagination a.page-link')
-        yield from response.follow_all(pagination_links, self.redirect)
+        yield from response.follow_all(pagination_links, self.start_parse)
 
     def parse_detail(self, response):
         def extract_with_css(query):
